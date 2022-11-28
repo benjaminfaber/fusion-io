@@ -147,7 +147,15 @@ class m3dc1_3d_mesh : public m3dc1_mesh {
 
 class m3dc1_stellarator_mesh : public m3dc1_3d_mesh {
 
-  protected:
+   protected:
+    virtual bool is_in_element_local(const int i, const double xi, 
+				   const double zi, const double eta) const
+    {
+      if(!m3dc1_mesh::is_in_element_local(i, xi, zi, eta)) return false;
+      if(zi + TOL*d[i] < 0.) return false;
+      if(zi - TOL*d[i] > d[i]) return false;
+      return true;
+    }
     virtual void global_to_logical(const double Rst,
                      const double Phi, const double Zst,
                      double* xl, double* zl) const;

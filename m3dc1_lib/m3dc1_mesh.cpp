@@ -458,10 +458,10 @@ void m3dc1_stellarator_mesh::logical_to_global(const double xl,
 }
 
 void m3dc1_stellarator_mesh::logical_to_local(int i, const double xl,
-                             const double Phi, const double zl,
-                             double* xi, double* zi, double* eta)
+                             const double phi, const double zl,
+                             double* xi, double* zi, double* eta) const
 {
-    m3dc1_3d_mesh::global_to_local(i, xl, Phi, zl, xi, zi, eta);
+    m3dc1_3d_mesh::global_to_local(i, xl, phi, zl, xi, zi, eta);
 }
 
 void m3dc1_stellarator_mesh::global_to_local(const double Rst,
@@ -471,5 +471,5 @@ void m3dc1_stellarator_mesh::global_to_local(const double Rst,
     double xl, zl;
     m3dc1_stellarator_mesh::global_to_logical(Rst, Phi, Zst, &xl, &zl);
     int i = m3dc1_3d_mesh::in_element(xl, Phi, zl);
-    m3dc1_stellarator_mesh::logical_to_local(i, xl, Phi, zl, xi, zi, eta);
+    m3dc1_3d_mesh::global_to_local(i, xl, Phi, zl, xi, zi, eta);
 }

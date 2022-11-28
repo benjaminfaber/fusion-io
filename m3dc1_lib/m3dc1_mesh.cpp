@@ -1,6 +1,7 @@
 #include "m3dc1_mesh.h"
 
 #include <iostream>
+#include <tuple>
 #include <math.h>
 
 m3dc1_mesh::m3dc1_mesh(int n)
@@ -411,7 +412,10 @@ m3dc1_3d_mesh::~m3dc1_3d_mesh()
   delete[] phi;
 }
 
-m3dc1_stellarator_mesh::m3dc1_stellarator_mesh(int n) : m3dc1_3d_mesh(n)
+m3dc1_stellarator_mesh::m3dc1_stellarator_mesh(int n,
+                        m3dc1_stellarator_mesh::eq_type_enum eq_type,
+                        std::string eq_file) :
+                        m3dc1_3d_mesh(n), eq_type(eq_type), eq_file(eq_file)
 {
   rst = new double[n];
   zst = new double[n];
@@ -421,4 +425,51 @@ m3dc1_stellarator_mesh::~m3dc1_stellarator_mesh()
 {
     delete[] rst;
     delete[] zst;
+}
+
+extern "C" {
+    void LogicalToCylindrical(double*, const double, const double, const double, std::string);
+    void CylindricalToLogical(double*, const double, const double, const double, std::string);
+}
+
+void m3dc1_stellarator_mesh::global_to_logical(const double Rst, 
+                             const double Phi, const double Zst,
+                             double* xl, double* zl) const
+{
+    double logical_coords[3];
+
+    CylindricalToLogical(logical_coords, Rst, Phi, Zst, eq_file);
+    *xl = logical_coords[0];
+    *zl = logical_coords[2];
+}
+
+void m3dc1_stellarator_mesh::logical_to_global(const double xl,
+                             const double phi, const double zl,
+                             double* Rst, double* Zst) const
+{
+    double s, theta;
+    double cyl_coords[3];
+
+    theta = std::atan2(zl, xl);
+    s = std::pow(xl, 2.0) + std::pow(zl, 2.0);
+    LogicalToCylindrical(cyl_coords, s, theta, phi, eq_file);
+    *Rst = cyl_coords[0];
+    *Zst = cyl_coords[2];
+}
+
+void m3dc1_stellarator_mesh::logical_to_local(int i, const double xl,
+                             const double Phi, const double zl,
+                             double* xi, double* zi, double* eta)
+{
+    m3dc1_3d_mesh::global_to_local(i, xl, Phi, zl, xi, zi, eta);
+}
+
+void m3dc1_stellarator_mesh::global_to_local(const double Rst,
+                             const double Phi, const double Zst,
+                             double* xi, double* zi, double* eta)
+{
+    double xl, zl;
+    m3dc1_stellarator_mesh::global_to_logical(Rst, Phi, Zst, &xl, &zl);
+    int i = m3dc1_3d_mesh::in_element(xl, Phi, zl);
+    m3dc1_stellarator_mesh::logical_to_local(i, xl, Phi, zl, xi, zi, eta);
 }

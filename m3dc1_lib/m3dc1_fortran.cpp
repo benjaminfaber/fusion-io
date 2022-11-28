@@ -673,4 +673,3 @@ extern "C" void m3dc1_set_scale_factor_(const double* d)
   scale_factor = *d;
 }
 
-

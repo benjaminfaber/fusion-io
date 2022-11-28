@@ -153,6 +153,9 @@ class m3dc1_stellarator_mesh : public m3dc1_3d_mesh{
     virtual int in_element(double R, double Phi, double Z,
                 double* xi=0, double* zi=0, double* eta=0,
                 int guess=-1);
+
+    m3dc1_stellarator_mesh(int n);
+    virtual ~m3dc1_stellarator_mesh();
 };
 
 #endif

@@ -410,3 +410,15 @@ m3dc1_3d_mesh::~m3dc1_3d_mesh()
   delete[] d;
   delete[] phi;
 }
+
+m3dc1_stellarator_mesh::m3dc1_stellarator_mesh(int n) : m3dc1_3d_mesh(n)
+{
+  rst = new double[n];
+  zst = new double[n];
+}
+
+m3dc1_stellarator_mesh::~m3dc1_stellarator_mesh()
+{
+    delete[] rst;
+    delete[] zst;
+}

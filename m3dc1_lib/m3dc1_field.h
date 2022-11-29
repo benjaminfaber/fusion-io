@@ -4,7 +4,6 @@
 #include <hdf5.h>
 #include <map>
 #include <vector>
-#include <string>
 
 #include "m3dc1_mesh.h"
 
@@ -80,6 +79,7 @@ class m3dc1_3d_field : public m3dc1_field {
 
  public:
   m3dc1_3d_field(m3dc1_mesh* m);
+  m3dc1_3d_field(m3dc1_stellarator_mesh* m);
 
   virtual bool eval(const double r, const double phi, const double z, 
 		    const m3dc1_field::m3dc1_get_op op, double* val, 
@@ -95,19 +95,6 @@ class m3dc1_compound_field : public m3dc1_field {
   virtual bool eval(const double r, const double phi, const double z,
 		    const m3dc1_field::m3dc1_get_op op, double* val,
 		    int* element=0);
-};
-
-class m3dc1_stellarator_field : public m3dc1_3d_field {
-  public:
-    m3dc1_3d_field* rst;
-    m3dc1_3d_field* zst;
-
-  public:
-    m3dc1_stellarator_field(m3dc1_mesh* m);
-
-    virtual bool eval(const double r, const double phi, const double z,
-              const m3dc1_field::m3dc1_get_op op, double* val,
-              int* element=0);
 };
 
 class m3dc1_timeslice {

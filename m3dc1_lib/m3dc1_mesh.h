@@ -2,6 +2,7 @@
 #define M3DC1_MESH_H
 
 #include <math.h>
+#include <string>
 
 #define TOL 1e-4
 
@@ -100,8 +101,6 @@ class m3dc1_mesh {
 
 };
 
-
-
 class m3dc1_3d_mesh : public m3dc1_mesh {
  protected:
   virtual bool is_in_element_local(const int i, const double xi, 
@@ -145,55 +144,6 @@ class m3dc1_3d_mesh : public m3dc1_mesh {
   virtual ~m3dc1_3d_mesh();
 };
 
-class m3dc1_stellarator_mesh : public m3dc1_3d_mesh {
-
-   protected:
-    virtual bool is_in_element_local(const int i, const double xi, 
-				   const double zi, const double eta) const
-    {
-      if(!m3dc1_mesh::is_in_element_local(i, xi, zi, eta)) return false;
-      if(zi + TOL*d[i] < 0.) return false;
-      if(zi - TOL*d[i] > d[i]) return false;
-      return true;
-    }
-    virtual void global_to_logical(const double Rst,
-                     const double Phi, const double Zst,
-                     double* xl, double* zl) const;
-
-    virtual void logical_to_global(const double xl,
-                     const double Phi, const double zl,
-                     double* R, double* Z) const;
-    
-    virtual void logical_to_local(int i, const double xl,
-                     const double Phi, const double zl,
-                     double* xi, double* zi, double* eta) const;
-
-    virtual void global_to_local(const double Rst,
-                     const double Phi, const double Zst,
-                     double* xi, double* zi, double* eta);
-  public:
-    enum eq_type_enum {
-        VMEC = 1,
-    };
-
-    double* rst;
-    double* zst;
-    m3dc1_stellarator_mesh::eq_type_enum eq_type;
-    std::string eq_file;
-    
-
-    virtual int in_element(double Rst, double Phi, double Zst,
-                double* xi_out=0, double* zi_out=0, double* eta_out=0,
-                int guess=-1)
-    {
-        double xl, zl;
-        m3dc1_stellarator_mesh::global_to_logical(Rst, Phi, Zst, &xl, &zl);
-        return m3dc1_3d_mesh::in_element(xl, Phi, zl, xi_out, zi_out, eta_out, guess);
-    }
-
-                     
-    m3dc1_stellarator_mesh(int n, m3dc1_stellarator_mesh::eq_type_enum eq_type, std::string eq_file);
-    ~m3dc1_stellarator_mesh();
-};
+class m3dc1_stellarator_mesh;
 
 #endif

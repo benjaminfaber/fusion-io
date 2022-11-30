@@ -44,7 +44,7 @@ m3dc1_mesh::m3dc1_mesh(const m3dc1_mesh& m)
     new_mesh.period = m.period;
     new_mesh.toroidal = m.toroidal;
     new_mesh.nplanes = m.nplanes;
-    this.set_memory_depth(m.get_memory_depth());
+    (*this).set_memory_depth(m.get_memory_depth());
     new_mesh.nneighbors = new int[nelms];
     std::copy(m.nneighbors, m.nneighbors + nelms, new_mesh.nneighbors);
     new_mesh.neighbor = new int*[nelms];
@@ -72,7 +72,7 @@ m3dc1_mesh::m3dc1_mesh(const m3dc1_3d_mesh& m)
     new_mesh.period = m.period;
     new_mesh.toroidal = m.toroidal;
     new_mesh.nplanes = m.nplanes;
-    this.set_memory_depth(m.get_memory_depth());
+    (*this).set_memory_depth(m.get_memory_depth());
     new_mesh.nneighbors = new int[nelms];
     std::copy(m.nneighbors, m.nneighbors + nelms, new_mesh.nneighbors);
     new_mesh.neighbor = new int*[nelms];

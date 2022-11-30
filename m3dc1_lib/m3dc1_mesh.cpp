@@ -27,6 +27,62 @@ m3dc1_mesh::m3dc1_mesh(int n)
   nplanes = 1;
 }
 
+m3dc1_mesh::m3dc1_mesh(const m3dc1_mesh& m) 
+{
+    nelms = m.nelms;
+
+    m3dc1_mesh new_mesh(nelms);
+    std::copy(m.a, m.a + nelms, new_mesh.a);
+    std::copy(m.b, m.b + nelms, new_mesh.b);
+    std::copy(m.c, m.c + nelms, new_mesh.c);
+    std::copy(m.co, m.co + nelms, new_mesh.co);
+    std::copy(m.sn, m.sn + nelms, new_mesh.sn);
+    std::copy(m.x, m.x + nelms, new_mesh.x);
+    std::copy(m.z, m.z + nelms, new_mesh.z);
+    std::copy(m.bound, m.bound + nelms, new_mesh.bound);
+    std::copy(m.region, m.region + nelms, new_mesh.region);
+    new_mesh.period = m.period;
+    new_mesh.toroidal = m.toroidal;
+    new_mesh.nplanes = m.nplanes;
+    this.set_memory_depth(m.get_memory_depth());
+    new_mesh.nneighbors = new int[nelms];
+    std::copy(m.nneighbors, m.nneighbors + nelms, new_mesh.nneighbors);
+    new_mesh.neighbor = new int*[nelms];
+    for(int i=0; i<nelms; i++)
+    {
+        new_mesh.neighbor[i] = new int[max_neighbors()];
+        std::copy(m.neighbor[i], m.neighbor[i] + max_neighbors(), new_mesh.neighbor[i]);
+    }
+}
+
+m3dc1_mesh::m3dc1_mesh(const m3dc1_3d_mesh& m)
+{
+    nelms = m.nelms;
+
+    m3dc1_mesh new_mesh(nelms);
+    std::copy(m.a, m.a + nelms, new_mesh.a);
+    std::copy(m.b, m.b + nelms, new_mesh.b);
+    std::copy(m.c, m.c + nelms, new_mesh.c);
+    std::copy(m.co, m.co + nelms, new_mesh.co);
+    std::copy(m.sn, m.sn + nelms, new_mesh.sn);
+    std::copy(m.x, m.x + nelms, new_mesh.x);
+    std::copy(m.z, m.z + nelms, new_mesh.z);
+    std::copy(m.bound, m.bound + nelms, new_mesh.bound);
+    std::copy(m.region, m.region + nelms, new_mesh.region);
+    new_mesh.period = m.period;
+    new_mesh.toroidal = m.toroidal;
+    new_mesh.nplanes = m.nplanes;
+    this.set_memory_depth(m.get_memory_depth());
+    new_mesh.nneighbors = new int[nelms];
+    std::copy(m.nneighbors, m.nneighbors + nelms, new_mesh.nneighbors);
+    new_mesh.neighbor = new int*[nelms];
+    for(int i=0; i<nelms; i++)
+    {
+        new_mesh.neighbor[i] = new int[max_neighbors()];
+        std::copy(m.neighbor[i], m.neighbor[i] + max_neighbors(), new_mesh.neighbor[i]);
+    }
+}
+
 m3dc1_mesh::~m3dc1_mesh()
 {
   /*
@@ -122,6 +178,11 @@ bool m3dc1_mesh::set_memory_depth(const int d)
   }
 
   return true;
+}
+
+int m3dc1_mesh::get_memory_depth() const
+{
+    return memory_depth;
 }
 
 int m3dc1_mesh::in_element_threadsafe(double X, double Phi, double Z,
@@ -404,6 +465,21 @@ m3dc1_3d_mesh::m3dc1_3d_mesh(int n)
 {
   d = new double[n];
   phi = new double[n];
+}
+
+m3dc1_3d_mesh::m3dc1_3d_mesh(const m3dc1_mesh& m) : m3dc1_mesh(m)
+{
+    d = new double[nelms];
+    phi = new double[nelms];
+}
+
+m3dc1_3d_mesh::m3dc1_3d_mesh(const m3dc1_3d_mesh& m) : m3dc1_mesh(m)
+{
+    d = new double[nelms];
+    phi = new double[nelms];
+
+    std::copy(m.d, m.d + nelms, d);
+    std::copy(m.phi, m.phi + nelms, phi);
 }
 
 m3dc1_3d_mesh::~m3dc1_3d_mesh()

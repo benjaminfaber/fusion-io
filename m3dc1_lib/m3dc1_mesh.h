@@ -6,6 +6,9 @@
 
 #define TOL 1e-4
 
+//Foward class declarations
+class m3dc1_stellarator_mesh;
+class m3dc1_3d_mesh;
 
 class m3dc1_mesh {
  private:
@@ -71,9 +74,12 @@ class m3dc1_mesh {
 
  public:
   m3dc1_mesh(int n);
+  m3dc1_mesh(const m3dc1_mesh*);
+  m3dc1_mesh(const m3dc1_3d_mesh*);
   virtual ~m3dc1_mesh(); 
 
   bool set_memory_depth(int d);
+  int get_memory_depth() const;
   virtual void find_neighbors();
 
   bool is_in_element(const int i, 
@@ -141,9 +147,9 @@ class m3dc1_3d_mesh : public m3dc1_mesh {
 
 
   m3dc1_3d_mesh(int n);
+  m3dc1_3d_mesh(const m3dc1_mesh*);
+  m3dc1_3d_mesh(const m3dc1_3d_mesh*);
   virtual ~m3dc1_3d_mesh();
 };
-
-class m3dc1_stellarator_mesh;
 
 #endif

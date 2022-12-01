@@ -20,7 +20,6 @@ class m3dc1_file {
   bool time_name(int time, char* name);
   hid_t open_timeslice(int time);
   m3dc1_timeslice* load_timeslice(const int time);
-  m3dc1_mesh* read_mesh(int time);
 
  public:
   const static int M3DC1_ADD_EQUILIBRIUM = 1;
@@ -35,6 +34,7 @@ class m3dc1_file {
   bool close();
 
   bool get_slice_time(const int, double*);
+  m3dc1_mesh* read_mesh(int time);
   m3dc1_scalar_list* get_slice_times();
   m3dc1_scalar_list* read_scalar(const char*);
   m3dc1_field* load_field(const char* name, const int time, 

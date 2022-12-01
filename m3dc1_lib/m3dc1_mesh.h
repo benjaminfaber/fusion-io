@@ -76,10 +76,30 @@ class m3dc1_mesh {
   m3dc1_mesh(int n);
   m3dc1_mesh(const m3dc1_mesh&);
   m3dc1_mesh(const m3dc1_3d_mesh&);
+  m3dc1_mesh(const m3dc1_stellarator_mesh&);
   virtual ~m3dc1_mesh(); 
+  m3dc1_mesh& operator=(const m3dc1_mesh&);
 
   bool set_memory_depth(int d);
-  int get_memory_depth() const;
+  inline int get_memory_depth() const {
+    return memory_depth;
+  }
+  inline int get_hits() const {
+    return hits;
+  }
+  inline int get_misses() const {
+    return misses;
+  }
+  inline int get_last_elm() const {
+    return last_elm;
+  }
+  inline int** get_next_elm() const {
+    return next_elm;
+  }
+  inline int get_next_elm(const int i, const int j) const {
+    return next_elm[i][j];
+  }
+
   virtual void find_neighbors();
 
   bool is_in_element(const int i, 
@@ -147,8 +167,12 @@ class m3dc1_3d_mesh : public m3dc1_mesh {
 
 
   m3dc1_3d_mesh(int n);
+  m3dc1_3d_mesh(m3dc1_mesh*);
+  m3dc1_3d_mesh(m3dc1_3d_mesh*);
+  m3dc1_3d_mesh(m3dc1_stellarator_mesh*);
   m3dc1_3d_mesh(const m3dc1_mesh&);
   m3dc1_3d_mesh(const m3dc1_3d_mesh&);
+  m3dc1_3d_mesh(const m3dc1_stellarator_mesh&);
   virtual ~m3dc1_3d_mesh();
 };
 

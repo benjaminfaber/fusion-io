@@ -50,7 +50,8 @@ class m3dc1_field {
   m3dc1_mesh* mesh;
 
   m3dc1_field() { mesh=0; data=0; }
-  m3dc1_field(m3dc1_mesh* m);
+  m3dc1_field(m3dc1_mesh*);
+  m3dc1_field(const m3dc1_mesh& m);
   virtual ~m3dc1_field();
 
   virtual bool eval(const double r, const double phi, const double z, 
@@ -78,8 +79,13 @@ class m3dc1_3d_field : public m3dc1_field {
   static const int li[tbasis];
 
  public:
-  m3dc1_3d_field(m3dc1_mesh* m);
-  m3dc1_3d_field(m3dc1_stellarator_mesh* m);
+  m3dc1_3d_field() { mesh = 0; data = 0; }
+  m3dc1_3d_field(m3dc1_mesh*);
+  m3dc1_3d_field(m3dc1_3d_mesh*);
+  m3dc1_3d_field(m3dc1_stellarator_mesh*);
+  m3dc1_3d_field(const m3dc1_mesh& m);
+  m3dc1_3d_field(const m3dc1_3d_mesh& m);
+  m3dc1_3d_field(const m3dc1_stellarator_mesh& m);
 
   virtual bool eval(const double r, const double phi, const double z, 
 		    const m3dc1_field::m3dc1_get_op op, double* val, 

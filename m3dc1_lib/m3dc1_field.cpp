@@ -168,6 +168,24 @@ m3dc1_3d_field::m3dc1_3d_field(m3dc1_mesh* m)
   data = new double[mesh->nelms*nbasis*tbasis];
 }
 
+m3dc1_3d_field::m3dc1_3d_field(m3dc1_3d_mesh* m)
+{
+    mesh = m;
+    data = new double[mesh->nelms*nbasis*tbasis];
+}
+
+m3dc1_3d_field::m3dc1_3d_field(const m3dc1_mesh& m)
+{
+    mesh = new m3dc1_3d_mesh(m);
+    data = new double[mesh->nelms*nbasis*tbasis];
+}
+
+m3dc1_3d_field::m3dc1_3d_field(const m3dc1_3d_mesh& m)
+{
+    mesh = new m3dc1_3d_mesh(m);
+    data = new double[mesh->nelms*nbasis*tbasis];
+}
+
 bool m3dc1_3d_field::eval(const double r, const double phi, const double z,
 			  const m3dc1_get_op op, double* val, int* element)
 {

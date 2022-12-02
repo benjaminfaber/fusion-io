@@ -6,15 +6,7 @@
 
 m3dc1_mesh::m3dc1_mesh(int n)
 {
-  a = new double[n];
-  b = new double[n];
-  c = new double[n];
-  co = new double[n];
-  sn = new double[n];
-  x = new double[n];
-  z = new double[n];
-  bound = new int[n];
-  region = new int[n];
+  allocate_memory(n);
   nelms = n;
   memory_depth = 0;
   last_elm = -1;
@@ -34,43 +26,13 @@ m3dc1_mesh& m3dc1_mesh::operator=(const m3dc1_mesh& m)
     
     if (nelms != m.nelms)
     {
-        delete[] a;
-        delete[] b;
-        delete[] c;
-        delete[] co;
-        delete[] sn;
-        delete[] x;
-        delete[] z;
-        delete[] bound;
-        delete[] region;
-        if(neighbor != 0) {
-            for(int i=0; i<nelms; i++)
-            delete[] neighbor[i];
-            delete[] neighbor;
-        }
-        if(nneighbors != 0) delete[] nneighbors;
-
+        deallocate_memory();
         clear_memory();
-        a = new double[m.nelms];
-        b = new double[m.nelms];
-        c = new double[m.nelms];
-        co = new double[m.nelms];
-        sn = new double[m.nelms];
-        x = new double[m.nelms];
-        z = new double[m.nelms];
-        bound = new int[m.nelms];
-        region = new int[m.nelms];
-        neighbor = new int*[m.nelms];
-        nneighbors = new int[m.nelms];
-        for(int i=0; i<m.nelms; i++)
-        {
-            neighbor[i] = new int[max_neighbors()];
-        }
+        allocate_memory(m.nelms);
+        nelms = m.nelms;
     }
-    nelms = m.nelms;
-    this->set_memory_depth(m.get_memory_depth());
+    if(memory_depth != m.get_memory_depth()) set_memory_depth(m.get_memory_depth());
     last_elm = m.get_last_elm();
-    next_elm = m.get_next_elm();
     hits = m.get_hits();
     misses = m.get_misses();
 
@@ -86,10 +48,12 @@ m3dc1_mesh& m3dc1_mesh::operator=(const m3dc1_mesh& m)
     period = m.period;
     toroidal = m.toroidal;
     nplanes = m.nplanes;
-    set_memory_depth(m.get_memory_depth());
     std::copy(m.nneighbors, m.nneighbors + nelms, nneighbors);
     for(int i=0; i<nelms; i++)
         std::copy(m.neighbor[i], m.neighbor[i] + max_neighbors(), neighbor[i]);
+    for(int d=0; d<max_neighbors(); d++)
+        for(int i=0; i<nelms; i++)
+            next_elm[d][i] = m.get_next_elm(d, i);
     
     return *this;
 }
@@ -97,6 +61,28 @@ m3dc1_mesh& m3dc1_mesh::operator=(const m3dc1_mesh& m)
 m3dc1_mesh::m3dc1_mesh(const m3dc1_mesh& m) 
 {
     *this = m;
+}
+m3dc1_mesh::m3dc1_mesh(m3dc1_mesh* m)
+{
+    nelms = m->nelms;
+    a = m->a;
+    b = m->b;
+    c = m->c;
+    co = m->co;
+    sn = m->sn;
+    x = m->x;
+    z = m->z;
+    bound = m->bound;
+    region = m->region;
+    period = m->period;
+    toroidal = m->toroidal;
+    nplanes = m->nplanes;
+    nneighbors = m->nneighbors;
+    neighbor = m->neighbor;
+    hits = m->get_hits();
+    misses = m->get_misses();
+    last_elm = m->get_last_elm();
+    next_elm = m->get_next_elm();
 }
 
 m3dc1_mesh::m3dc1_mesh(const m3dc1_3d_mesh& m)
@@ -125,6 +111,10 @@ m3dc1_mesh::m3dc1_mesh(const m3dc1_3d_mesh& m)
         new_mesh.neighbor[i] = new int[max_neighbors()];
         std::copy(m.neighbor[i], m.neighbor[i] + max_neighbors(), new_mesh.neighbor[i]);
     }
+    for(int d=0; d<max_neighbors(); d++)
+        for(int i=0; i<nelms; i++)
+            next_elm[d][i] = m.get_next_elm(d, i);
+
     *this = new_mesh;
 }
 
@@ -140,21 +130,7 @@ m3dc1_mesh::~m3dc1_mesh()
 	    << std::endl;
   */
 
-  delete[] a;
-  delete[] b;
-  delete[] c;
-  delete[] co;
-  delete[] sn;
-  delete[] x;
-  delete[] z;
-  delete[] bound;
-  delete[] region;
-  if(neighbor != 0) {
-    for(int i=0; i<nelms; i++)
-      delete[] neighbor[i];
-    delete[] neighbor;
-  }
-  if(nneighbors != 0) delete[] nneighbors;
+  deallocate_memory();
   clear_memory();
 }
 
@@ -192,6 +168,45 @@ void m3dc1_mesh::extent(double* X0, double* X1,
 
   *Phi0 = 0.;
   *Phi1 = period;
+}
+
+void m3dc1_mesh::allocate_memory(const int n)
+{
+  a = new double[n];
+  b = new double[n];
+  c = new double[n];
+  co = new double[n];
+  sn = new double[n];
+  x = new double[n];
+  z = new double[n];
+  bound = new int[n];
+  region = new int[n];
+  nneighbors = new int[n];
+  neighbor = new int*[n];
+  for(int i=0; i<n; i++) {
+    nneighbors[i] = 0;
+    neighbor[i] = new int[max_neighbors()];
+  }
+
+}
+
+void m3dc1_mesh::deallocate_memory()
+{
+  delete[] a;
+  delete[] b;
+  delete[] c;
+  delete[] co;
+  delete[] sn;
+  delete[] x;
+  delete[] z;
+  delete[] bound;
+  delete[] region;
+  if(neighbor != 0) {
+    for(int i=0; i<nelms; i++)
+      delete[] neighbor[i];
+    delete[] neighbor;
+  }
+  if(nneighbors != 0) delete[] nneighbors;
 }
 
 void m3dc1_mesh::clear_memory()
@@ -429,13 +444,6 @@ int m3dc1_3d_mesh::shared_nodes(const int i, const int j)
 void m3dc1_mesh::find_neighbors()
 {
   std::cerr << "Calculating M3D-C1 mesh connectivity..." << std::endl;
-  nneighbors = new int[nelms];
-  neighbor = new int*[nelms];
-
-  for(int i=0; i<nelms; i++) {
-    nneighbors[i] = 0;
-    neighbor[i] = new int[max_neighbors()];
-  }
 
   for(int i=0; i<nelms/nplanes; i++) {
     for(int j=i+1; j<nelms/nplanes; j++) {

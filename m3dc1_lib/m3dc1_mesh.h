@@ -19,6 +19,8 @@ class m3dc1_mesh {
   int last_elm; 
   int** next_elm;
 
+  void allocate_memory(const int);
+  void deallocate_memory();
   void clear_memory();
 
  protected:
@@ -74,6 +76,9 @@ class m3dc1_mesh {
 
  public:
   m3dc1_mesh(int n);
+  m3dc1_mesh(m3dc1_mesh*);
+  m3dc1_mesh(m3dc1_3d_mesh*);
+  m3dc1_mesh(m3dc1_stellarator_mesh*);
   m3dc1_mesh(const m3dc1_mesh&);
   m3dc1_mesh(const m3dc1_3d_mesh&);
   m3dc1_mesh(const m3dc1_stellarator_mesh&);
@@ -95,6 +100,9 @@ class m3dc1_mesh {
   }
   inline int** get_next_elm() const {
     return next_elm;
+  }
+  inline int* get_next_elm(const int i) const {
+    return next_elm[i];
   }
   inline int get_next_elm(const int i, const int j) const {
     return next_elm[i][j];

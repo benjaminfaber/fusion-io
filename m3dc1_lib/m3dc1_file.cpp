@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include <iostream>
+#include <string>
 
 m3dc1_file::m3dc1_file()
 {
@@ -85,6 +86,7 @@ m3dc1_timeslice* m3dc1_file::load_timeslice(const int t)
 
   read_parameter("icomplex", &ts->is_complex);
   read_parameter("3d", &ts->is_3d);
+  read_parameter("stell", &ts->is_stell);
   //  std::cerr << "3d = " << ts->is_3d << std::endl;
 
   hid_t attr_id = H5Aopen(time_group, "time", H5P_DEFAULT);
@@ -130,11 +132,22 @@ m3dc1_mesh* m3dc1_file::read_mesh(const int t)
   read_parameter("3d", &is_3d);  
   //  std::cerr << "is_3d = " << is_3d << std::endl;
 
+  int is_stell = 0;
+  read_parameter("stellarator", &is_stell);
+  m3dc1_stellarator_mesh::eq_type_enum eq_type = m3dc1_stellarator_mesh::eq_type_enum::VMEC;
+  std::string eq_file("");
+  if(is_stell == 1)
+  {
+    int temp;
+    read_parameter("eq_type", &temp);
+    read_parameter("eq_file", &temp);
+  }
+
   int version = 0;
   read_parameter("version", &version);
 
   int nfields;
-  if(is_3d) nfields = 9;
+  if(is_3d || is_stell) nfields = 9;
   else nfields = 7;
   if(version>=15) nfields++;
 
@@ -147,6 +160,7 @@ m3dc1_mesh* m3dc1_file::read_mesh(const int t)
 
   m3dc1_mesh* mesh;
   if(is_3d) mesh = new m3dc1_3d_mesh(nelms);
+  else if(is_stell) mesh = new m3dc1_stellarator_mesh(nelms, eq_type, eq_file);
   else mesh = new m3dc1_mesh(nelms);
 
   // set default mesh memory depth for searching
@@ -177,6 +191,18 @@ m3dc1_mesh* m3dc1_file::read_mesh(const int t)
     if(is_3d) {
       ((m3dc1_3d_mesh*)mesh)->d[i]   =      data[i*nfields+offset];
       ((m3dc1_3d_mesh*)mesh)->phi[i] =      data[i*nfields+offset+1];
+    }
+    if(is_stell) {
+      ((m3dc1_stellarator_mesh*)mesh)->d[i]   =      data[i*nfields+offset];
+      ((m3dc1_stellarator_mesh*)mesh)->phi[i] =      data[i*nfields+offset+1];
+      m3dc1_stellarator_mesh* stell_mesh = (m3dc1_stellarator_mesh*)mesh;
+      double r, z;
+      for(int i=0; i<nelms; i++)
+      {
+        stell_mesh->logical_to_global(stell_mesh->x[i], stell_mesh->phi[i], stell_mesh->z[i], &r, &z);
+        stell_mesh->rst[i] = r;
+        stell_mesh->zst[i] = z;
+      }
     }
   }
   delete[] data;
@@ -368,6 +394,7 @@ m3dc1_field* m3dc1_file::load_field(const char* n, const int t,
   }
  
   bool is_3d = (ts->is_3d==1);
+  bool is_stell = (ts->is_stell==1);
   bool is_complex = (ts->is_complex==1);
 
   // open time group
@@ -405,6 +432,8 @@ m3dc1_field* m3dc1_file::load_field(const char* n, const int t,
   m3dc1_field* field;
   if(is_3d)
     field = new m3dc1_3d_field(ts->mesh);
+else if(is_stell)
+    field = new m3dc1_stellarator_field((m3dc1_stellarator_mesh*)(ts->mesh));
   else if(is_complex)
     field = new m3dc1_complex_field(ts->mesh,ts->ntor);
   else

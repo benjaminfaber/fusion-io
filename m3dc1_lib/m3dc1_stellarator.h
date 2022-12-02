@@ -7,19 +7,6 @@
 
 class m3dc1_stellarator_mesh : public m3dc1_3d_mesh {
 
-   protected:
-
-    virtual void logical_to_global(const double xl,
-                     const double Phi, const double zl,
-                     double* R, double* Z) const;
-    
-    virtual void logical_to_local(int i, const double xl,
-                     const double Phi, const double zl,
-                     double* xi, double* zi, double* eta) const;
-
-    virtual void global_to_local(const double Rst,
-                     const double Phi, const double Zst,
-                     double* xi, double* zi, double* eta);
   public:
     enum eq_type_enum {
         VMEC = 1,
@@ -34,6 +21,17 @@ class m3dc1_stellarator_mesh : public m3dc1_3d_mesh {
                      const double Phi, const double Zst,
                      double* xl, double* zl) const;
 
+    virtual void logical_to_global(const double xl,
+                     const double Phi, const double zl,
+                     double* R, double* Z) const;
+    
+    virtual void logical_to_local(int i, const double xl,
+                     const double Phi, const double zl,
+                     double* xi, double* zi, double* eta) const;
+
+    virtual void global_to_local(const double Rst,
+                     const double Phi, const double Zst,
+                     double* xi, double* zi, double* eta);
 
     virtual int in_element(double Rst, double Phi, double Zst,
                 double* xi_out=0, double* zi_out=0, double* eta_out=0,
@@ -44,25 +42,33 @@ class m3dc1_stellarator_mesh : public m3dc1_3d_mesh {
         return m3dc1_3d_mesh::in_element(xl, Phi, zl, xi_out, zi_out, eta_out, guess);
     }
 
-                     
-    m3dc1_stellarator_mesh(int n, m3dc1_stellarator_mesh::eq_type_enum eq_type, std::string eq_file);
-    ~m3dc1_stellarator_mesh();
+    m3dc1_stellarator_mesh();
+    m3dc1_stellarator_mesh(const int, m3dc1_stellarator_mesh::eq_type_enum, std::string);
+    m3dc1_stellarator_mesh(m3dc1_mesh*, m3dc1_stellarator_mesh::eq_type_enum, std::string);
+    m3dc1_stellarator_mesh(m3dc1_3d_mesh*, m3dc1_stellarator_mesh::eq_type_enum, std::string);
+    m3dc1_stellarator_mesh(m3dc1_stellarator_mesh*);
+    m3dc1_stellarator_mesh(const m3dc1_mesh&, m3dc1_stellarator_mesh::eq_type_enum, std::string);
+    m3dc1_stellarator_mesh(const m3dc1_3d_mesh&, m3dc1_stellarator_mesh::eq_type_enum, std::string);
+    m3dc1_stellarator_mesh(const m3dc1_stellarator_mesh&);
+
+    virtual ~m3dc1_stellarator_mesh();
+
+    //static m3dc1_stellarator_mesh* read_mesh(const char*, const int, const char*);
 };
 
 
 class m3dc1_stellarator_field : public m3dc1_3d_field {
   public:
-    m3dc1_3d_field* rst;
-    m3dc1_3d_field* zst;
-    
-  public:
     m3dc1_stellarator_mesh* stell_mesh;
-    m3dc1_stellarator_field(m3dc1_stellarator_mesh* m);
+    m3dc1_stellarator_field(const m3dc1_mesh&, m3dc1_stellarator_mesh::eq_type_enum, std::string);
+    m3dc1_stellarator_field(m3dc1_stellarator_mesh*);
     virtual ~m3dc1_stellarator_field();
 
     virtual bool eval(const double r, const double phi, const double z,
               const m3dc1_field::m3dc1_get_op op, double* val,
-              int* element=0);
+              int* element=0) { return true; }
+ 
+    void load_field(char*);
 };
 
 #endif

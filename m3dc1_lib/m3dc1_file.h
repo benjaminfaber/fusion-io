@@ -2,6 +2,7 @@
 #define M3DC1_FILE_H
 
 #include "m3dc1_field.h"
+#include "m3dc1_stellarator.h"
 #include <map>
 #include <string>
 #include <vector>

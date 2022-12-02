@@ -111,6 +111,7 @@ class m3dc1_timeslice {
   int ntor;
   int is_3d;
   int is_complex;
+  int is_stell;
 
   double time;
   m3dc1_mesh* mesh;

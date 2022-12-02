@@ -318,6 +318,7 @@ m3dc1_timeslice::m3dc1_timeslice()
   : mesh(0)
 {
   is_3d = 0;
+  is_stell = 0;
 }
 
 m3dc1_timeslice::~m3dc1_timeslice()

@@ -77,7 +77,7 @@ class m3dc1_mesh {
  public:
   m3dc1_mesh(int n);
   m3dc1_mesh(m3dc1_mesh*);
-  m3dc1_mesh(m3dc1_3d_mesh*);
+  //m3dc1_mesh(m3dc1_3d_mesh*);
   m3dc1_mesh(m3dc1_stellarator_mesh*);
   m3dc1_mesh(const m3dc1_mesh&);
   m3dc1_mesh(const m3dc1_3d_mesh&);
